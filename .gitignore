@@ -1,0 +1,4 @@
+Thumbs.db
+__tests__/__snapshots__/
+node_modules/
+.DS_Store

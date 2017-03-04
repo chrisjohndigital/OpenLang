@@ -1,0 +1,32 @@
+@charset "utf-8";
+
+$fontfamily: 'Open Sans', Helvetica,Arial, sans-serif;
+$fontweight: 400;
+
+$appwidth: 1920px;
+$appheight: 1080px;
+$appbackgroundcolor: white;
+$camerawidth: 1280px;
+$cameraheight: 720px;
+$panelrightwidth:639px;
+$defpadding: 10px;
+$linkcolor: #4789ec;
+
+$object-list: 'panel-left', 'panel-right', 'camera', 'panel-file-import', 'panel-file-export', 'picker', 'icon img', 'player', 'file';
+$object-float: left, left, left, left, left, '', '', '', '';
+$object-color: black, grey, white, grey, white, grey, '', '', '';
+$object-width: $camerawidth, $panelrightwidth, $camerawidth, $panelrightwidth, $panelrightwidth, $panelrightwidth/2, '', $panelrightwidth, '';
+$object-height: $appheight, $appheight, $cameraheight, $appheight/2, $appheight/2, (($appheight/2)/2), '', auto, '';
+$object-hover: '', '', '', '', '', '', red, '', '';
+$object-cursor: '', '', '', '', '', '', pointer, '', pointer;
+$object-left: '', '', '', '', '', ($panelrightwidth/4), '', 0px, '';
+$object-top: '', '', '', '', '', ((($appheight)/2)/4), '', ((((($appheight)/2)/4)+(($appheight/2)/2))+$defpadding), '';
+$object-transition: '', '', '', '', '', '', all 0.5s, '', '';
+$object-background: '', '', '', '', '', 'images/drop-file.png', '', '', 'images/icon-download.png';
+$object-border: '', '', '', '', '', 1px, 1px, '', '';
+$object-border-color: '', '', '', '', '', white, white, '', '';
+$object-border-type: '', '', '', '', '', dashed, solid, '', '';
+$object-border-radius: '', '', '', '', '', 5px, 5px, '', '';
+$object-animation: '', '', '', '', '', '', '', '', '';
+$object-animation-duration: '', '', '', '', '', '', '', '', '';
+$object-animation-repeat: '', '', '', '', '', '', '', '', '';

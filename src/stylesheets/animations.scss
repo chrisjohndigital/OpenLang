@@ -1,0 +1,5 @@
+@keyframes pulse {
+    0%   {border-width: 1px}
+    50%   {border-width: 5px; border-color:red}
+    100% {border-width: 1px}
+}

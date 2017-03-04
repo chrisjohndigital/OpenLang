@@ -1,0 +1,22 @@
+body {font-family:$fontfamily; margin:0px; font-size:1.4em}
+body, #react-container {overflow: hidden}
+
+a {color:$linkcolor}
+
+#react-container {margin:auto; width: $appwidth; height: $appheight; background-color: $appbackgroundcolor; border:1px solid silver}
+
+.visibility-1 {display:block}
+.visibility-0 {display:none}
+
+.panel-control-panel, .player {text-align:center}
+
+.icon img{margin-top:$defpadding}
+.pulse-1 img {@include set-animation(pulse, 2s, infinite)}
+
+.panel-file-import {position:relative}
+.panel-file-export {overflow-y: scroll}
+
+.file {margin-left:$defpadding; padding:$defpadding*2}
+.file a {margin-left:$defpadding*6}
+
+@include create-object-styles();

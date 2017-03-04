@@ -1,0 +1,92 @@
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+@mixin set-border($amount, $type, $color) {
+  border:$amount $type $color;
+}
+@mixin set-background($url) {
+    background-image:url($url);
+    background-position: left; 
+    background-repeat: no-repeat;
+}
+@mixin set-transition($amount) {
+    -webkit-transition: $amount; 
+    -moz-transition: $amount; 
+    -o-transition: $amount; 
+    transition: $amount
+}
+@mixin set-filter($filter) {
+    -webkit-filter: $filter; /* Safari 6.0 - 9.0 */
+    filter: $filter
+}
+@mixin set-transform($transform) {
+    -ms-transform: $transform; 
+    -webkit-transform: $transform;
+    transform: $transform
+}
+@mixin set-animation($animation, $duration, $repeat) {
+     @if $repeat != '' {
+         -webkit-animation: $animation $duration $repeat; 
+        animation: $animation $duration $repeat;
+         -moz-animation: $animation $duration $repeat
+     } @else {
+         -webkit-animation: $animation $duration; 
+        animation: $animation $duration;
+         -moz-animation: $animation $duration
+     }
+}
+@mixin create-object-styles() {
+	@each $object in $object-list {
+        $i: (index($object-list, $object)+1);
+    	.#{$object} {
+            @if (nth($object-transition, $i - 1) != '') {
+                @include set-transition(unquote(nth($object-transition, $i - 1)));
+            }
+            @if nth($object-width, $i - 1) != '' {
+                width: unquote(nth($object-width, $i - 1));
+            }
+            @if nth($object-float, $i - 1) != '' {
+                float: unquote(nth($object-float, $i - 1));
+            }
+            @if nth($object-height, $i - 1) != '' {
+                height: unquote(nth($object-height, $i - 1));
+            }
+            @if nth($object-cursor, $i - 1) != '' {
+                cursor: unquote(nth($object-cursor, $i - 1));
+            }
+            @if nth($object-color, $i - 1) != '' {
+                background-color: unquote(nth($object-color, $i - 1));
+            }
+            @if nth($object-border, $i - 1) != '' {
+                @include set-border((nth($object-border, $i - 1)), (nth($object-border-type, $i - 1)), (nth($object-border-color, $i - 1)))
+            }
+            @if nth($object-border-radius, $i - 1) != '' {
+                @include border-radius(nth($object-border-radius, $i - 1));
+            }
+            @if nth($object-background, $i - 1) != '' {
+                @include set-background(nth($object-background, $i - 1));
+            }
+            @if nth($object-left, $i - 1) != '' {
+                position:absolute;
+                left:(nth($object-left, $i - 1));
+                @if nth($object-top, $i - 1) != '' {
+                    top:(nth($object-top, $i - 1));
+                }
+            }
+            @if nth($object-animation, $i - 1) != '' {
+                @include set-animation((nth($object-animation, $i - 1)), (nth($object-animation-duration, $i - 1)), (nth($object-animation-repeat, $i - 1)))
+            }
+	    }
+	}
+    @each $object in $object-list {
+        $i: (index($object-list, $object)+1);
+    	.#{$object}:hover {
+            @if nth($object-hover, $i - 1) != '' {
+                @include set-border((nth($object-border, $i - 1)), (nth($object-border-type, $i - 1)), (nth($object-hover, $i - 1)))
+            }
+	    }
+	}
+}

@@ -1,0 +1,12 @@
+{
+    "config1": 
+    {
+        "width": "1280",
+        "height": "720"
+    },
+    "config2": 
+    {
+        "width": "640",
+        "height": "360"
+    }
+}
