@@ -3,7 +3,9 @@ OpenLang
 
 HTML5 video language lab web application using React
 
-##About
+![Image representing OpenLang](dist/assets/images/openlang.jpg?raw=true "Image representing OpenLang")
+
+## About
 
 OpenLang is a great starting point for anyone interested in developing an HTML5 video language lab web application using React.  OpenLang uses MediaDevices and the MediaStream Recording API for video recording.
 
@@ -17,7 +19,7 @@ Features included:
 
 4) Multiple-file HTML5 video recording and download
 
-##Platform
+## Platform
 
 [React](https://facebook.github.io/react/)
 
