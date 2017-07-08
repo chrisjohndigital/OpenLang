@@ -7,10 +7,13 @@
 @mixin set-border($amount, $type, $color) {
   border:$amount $type $color;
 }
-@mixin set-background($url) {
+@mixin set-background($url, $i) {
     background-image:url($url);
-    background-position: left; 
+    background-position: center; 
     background-repeat: no-repeat;
+    @if nth($object-background-width, $i - 1) != '' and nth($object-background-height, $i - 1) != '' {
+        background-size: unquote(nth($object-background-width, $i - 1)) unquote(nth($object-background-height, $i - 1));
+    }
 }
 @mixin set-transition($amount) {
     -webkit-transition: $amount; 
@@ -67,7 +70,7 @@
                 @include border-radius(nth($object-border-radius, $i - 1));
             }
             @if nth($object-background, $i - 1) != '' {
-                @include set-background(nth($object-background, $i - 1));
+                @include set-background(nth($object-background, $i - 1), $i);
             }
             @if nth($object-left, $i - 1) != '' {
                 position:absolute;
@@ -90,3 +93,5 @@
 	    }
 	}
 }
+
+video {border:1px solid silver}

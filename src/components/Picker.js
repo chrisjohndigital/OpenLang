@@ -3,15 +3,18 @@ import React from 'react'
 export class Picker extends React.Component {
     constructor(props) {
         super();
+        this.srcWidth=640;
+        this.srcHeight=360;
+        this.mimeTypes = ['audio/mp3', 'audio/mpeg', 'video/mp4']
         this.fileDragOver = this.fileDragOver.bind(this);
         this.fileDragDrop = this.fileDragDrop.bind(this);
     }
     render() {
         return (
         <div>
-        <div id='picker' className='picker'>
-        </div>
-        <div id='player' className='player'>
+            <div id='player' className='player'>
+            </div>
+            <div id='picker' className='picker'>
         </div>
         </div>
         )
@@ -45,19 +48,24 @@ export class Picker extends React.Component {
 		}
     }
     processFile(file) {
-        if (file.type=="audio/mp3" || file.type=="audio/mpeg") {          
-            var reader = new FileReader();
-            reader.onloadend = (function(event) {
-                if (event.target.readyState == FileReader.DONE) {    
-                    var sourceTag='<source src="'+event.target.result+'" type="audio/mp3">';
-                    var mediatag = '<audio controls autoplay>'+sourceTag+'</audio>';
-                    document.getElementById('player').innerHTML = mediatag;
-                }
-                reader = null;
-            });
-		  reader.readAsDataURL(file);
+        if (file.type==this.mimeTypes[0] || file.type==this.mimeTypes[1]) {   
+            this.loadFile(file, file.type, 'audio');
+        } else if (file.type==this.mimeTypes[2]) {
+            this.loadFile(file, file.type, 'video');
         } else {
-            alert ('Sorry, only mp3 files allowed');
+            alert ('Sorry, only mp3 or mp4 files allowed');
         }
+    }
+    loadFile(file, mimeType, fileType) {
+        var reader = new FileReader();
+        reader.onloadend = event => {
+            if (event.target.readyState == FileReader.DONE) {
+                var sourceTag='<source src="'+event.target.result+'" type="'+mimeType+'">';
+                var mediatag = '<' + fileType + ' width="'+this.srcWidth+'" height="'+this.srcHeight+'" controls autoplay>'+sourceTag+'</' + fileType + '>';
+                document.getElementById('player').innerHTML = mediatag;
+            }
+            reader = null;
+        }
+        reader.readAsDataURL(file);
     }
 }

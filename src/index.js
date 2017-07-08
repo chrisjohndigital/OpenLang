@@ -73,12 +73,12 @@ class App extends React.Component {
         this.blobArray = []
         this.recorder = new window.MediaRecorder(this.mediaStream);
         var _this = this;
-		  this.recorder.ondataavailable = function(event) {
-              if (event.data.size > 0) {
+        this.recorder.ondataavailable = event => {
+            if (event.data.size > 0) {
                   _this.blobArray.push(event.data);
               }
-          };
-        this.recorder.onstop = function() {
+        }
+        this.recorder.onstop = () => {
             _this.recorder = null;
             if (_this.blobArray.length > 0) {
                 var blob = new window.Blob(_this.blobArray, {
@@ -86,7 +86,7 @@ class App extends React.Component {
 			  	});
                 _this.readBlob(blob);
             }
-        };
+        }
     	this.recorder.start();
     }
     recordStop() {
