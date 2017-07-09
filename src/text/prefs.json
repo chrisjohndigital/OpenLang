@@ -6,6 +6,26 @@
     },
     "config2": 
     {
+        "width": "1280",
+        "height": "720"
+    },
+    "config3": 
+    {
+        "width": "640",
+        "height": "360"
+    },
+    "config4": 
+    {
+        "width": "640",
+        "height": "480"
+    },
+    "config5": 
+    {
+        "width": "320",
+        "height": "240"
+    },
+    "fallback": 
+    {
         "width": "640",
         "height": "360"
     }

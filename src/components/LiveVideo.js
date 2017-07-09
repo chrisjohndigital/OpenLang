@@ -52,11 +52,16 @@ export class LiveVideo extends React.Component {
             _this.timer = setInterval(_this.fallbackResolution, 10000);
         });
         device.catch(function(err) {
-            console.log ('Device connect error');
+            console.log ('Device connect error, Number of connect attempts: ' + _this.cameraConnectAttempt  + ' Total attempts allowed: ' + _this.cameraConnectAttemptLimit);
             if (_this.cameraConnectAttempt < _this.cameraConnectAttemptLimit) {
                 console.log ('Attempting to connect again...');
                 setTimeout(function(){ 
-                    _this.connectToCamera();
+                    console.log ('Trying different camera resolution...');
+                    if ((prefs['config'+(String(_this.cameraConnectAttempt+1))])!=undefined) {
+                        _this.connectToCamera(prefs['config'+(String(_this.cameraConnectAttempt+1))]); 
+                    } else {
+                        _this.connectToCamera();   
+                    }
                 }, 3000);
             } else {
                 console.log ('Giving up connection attempts');
@@ -73,7 +78,7 @@ export class LiveVideo extends React.Component {
             this.mediaStream.getVideoTracks()[0].stop();
             this.mediaStream = null;
             document.getElementById('camera').setAttribute('src', null)
-            this.connectToCamera(prefs.config2);
+            this.connectToCamera(prefs.fallback);
         } else {
             console.log ('Giving up connection attempts');
             alert ('Unable to connect to camera');

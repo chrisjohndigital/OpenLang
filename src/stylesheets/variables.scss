@@ -16,7 +16,7 @@ $linkcolor: #4789ec;
 
 $object-list: 'panel-left', 'panel-right', 'camera', 'panel-file-import', 'panel-file-export', 'picker', 'icon img', 'player', 'file';
 $object-float: left, left, left, left, left, '', '', '', '';
-$object-color: black, grey, white, #1d478e, white, '', '', '', '';
+$object-color: black, grey, #cccccc, #1d478e, white, '', '', '', '';
 $object-width: $camerawidth, $panelrightwidth, $camerawidth, $panelrightwidth, $panelrightwidth, $pickerwidth, '', $panelrightwidth, '';
 $object-height: $appheight, $appheight, $cameraheight, (($cameraheight)/2), (($appheight)-($cameraheight/2)), $pickerwidth, '', (($cameraheight)/2), '';
 $object-hover: '', '', '', '', '', '', red, '', '';
@@ -25,6 +25,7 @@ $object-left: '', '', '', '', '', ((($panelrightwidth)-$pickerwidth)-$defpadding
 $object-top: '', '', '', '', '', ((($cameraheight/2)-$pickerwidth)-$defpadding), '', 0px, '';
 $object-transition: '', '', '', '', '', '', all 0.5s, '', '';
 $object-background: '', '', '', 'images/icon-video.png', '', 'images/drop-file.png', '', '', 'images/icon-download.png';
+$object-background-position: '', '', '', 'center', '', 'center', '', '', 'left';
 $object-background-width: '', '', '', '', '', $pickerwidth, '', '', '';
 $object-background-height: '', '', '', '', '', $pickerheight, '', '', '';
 $object-border: '', '', '', '', '', 1px, 1px, '', '';

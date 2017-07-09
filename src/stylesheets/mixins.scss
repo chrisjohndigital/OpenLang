@@ -9,10 +9,14 @@
 }
 @mixin set-background($url, $i) {
     background-image:url($url);
-    background-position: center; 
     background-repeat: no-repeat;
     @if nth($object-background-width, $i - 1) != '' and nth($object-background-height, $i - 1) != '' {
         background-size: unquote(nth($object-background-width, $i - 1)) unquote(nth($object-background-height, $i - 1));
+    }
+    @if nth($object-background-position, $i - 1) != '' {
+        background-position: unquote(nth($object-background-position, $i - 1));
+    } @else {
+        background-position: center;
     }
 }
 @mixin set-transition($amount) {
