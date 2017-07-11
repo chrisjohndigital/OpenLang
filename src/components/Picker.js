@@ -60,11 +60,13 @@ export class Picker extends React.Component {
         var reader = new FileReader();
         reader.onloadend = event => {
             if (event.target.readyState == FileReader.DONE) {
+                console.log (event.target.result);
                 var sourceTag='<source src="'+event.target.result+'" type="'+mimeType+'">';
-                var mediatag = '<' + fileType + ' width="'+this.srcWidth+'" height="'+this.srcHeight+'" controls autoplay>'+sourceTag+'</' + fileType + '>';
+                var mediatag = '<' + fileType + ' id="picker-media" width="'+this.srcWidth+'" height="'+this.srcHeight+'" controls autoplay>'+sourceTag+'</' + fileType + '>';
                 document.getElementById('player').innerHTML = mediatag;
             }
             reader = null;
+            this.props.onRemoteStreamElement(document.getElementById('picker-media'));
         }
         reader.readAsDataURL(file);
     }

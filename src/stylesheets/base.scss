@@ -19,4 +19,7 @@ a {color:$linkcolor}
 .file {margin-left:$defpadding; padding:$defpadding*2}
 .file a {margin-left:$defpadding*6}
 
+form {padding:$defpadding; text-align:right}
+form input {width:$defpadding*3; height:$defpadding*3}
+
 @include create-object-styles();
