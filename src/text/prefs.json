@@ -28,5 +28,10 @@
     {
         "width": "640",
         "height": "360"
+    },
+    "thumbnail": 
+    {
+        "width": "160",
+        "height": "80"
     }
 }

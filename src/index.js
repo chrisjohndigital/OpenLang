@@ -72,9 +72,9 @@ class App extends React.Component {
             })
         }
     }
-    remoteStreamElementAvailable(mediaStream) {
-        if (mediaStream!=undefined) {
-            this.remoteStreamElement = mediaStream;
+    remoteStreamElementAvailable(ele) {
+        if (ele!=undefined) {
+            this.remoteStreamElement = ele;
             this.setState({
                 showPreferences: true
             })
@@ -114,8 +114,8 @@ class App extends React.Component {
         var _this = this;
         this.recorder.ondataavailable = event => {
             if (event.data.size > 0) {
-                console.log ('ondataavailable');
-                console.log (event.data);
+                log ('ondataavailable');
+                //log (event.data);
                   _this.blobArray.push(event.data);
               }
         }
@@ -134,8 +134,8 @@ class App extends React.Component {
         this.recorder.stop();
     }
     readBlob(blob) {
-        console.log ('readblob');
-        console.log (blob);
+        log ('readblob');
+        log (blob);
         this.blob=blob;
         var d = new Date();
 		var n = d.getTime(); 

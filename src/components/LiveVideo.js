@@ -20,7 +20,7 @@ export class LiveVideo extends React.Component {
             <video className='camera' id="camera" width={prefs.config1.width} height={prefs.config2.height} autoPlay></video>
         )
     }
-    cameraReady() {
+    cameraReady(pref=prefs.config1) {
         console.log ('cameraReady, cancelling all timers');
         console.log ('Connection attempts: ' + this.cameraConnectAttempt);
         clearInterval(this.timer);
@@ -46,7 +46,8 @@ export class LiveVideo extends React.Component {
         var device = navigator.mediaDevices.getUserMedia({audio: false, video: video_constraints});
         device.then(function(mediaStream) {
             console.log ('Device response but camera not yet ready');
-            document.getElementById('camera').setAttribute('src', window.URL.createObjectURL(mediaStream))
+            //document.getElementById('camera').setAttribute('src', window.URL.createObjectURL(mediaStream)); //Deprecated
+            document.getElementById('camera').srcObject = mediaStream;
             _this.mediaStream = mediaStream;
             console.log ('Setting interval to check camera is ready');
             _this.timer = setInterval(_this.fallbackResolution, 10000);

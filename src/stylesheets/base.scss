@@ -16,8 +16,7 @@ a {color:$linkcolor}
 .panel-file-import {position:relative}
 .panel-file-export {overflow-y: scroll}
 
-.file {margin-left:$defpadding; padding:$defpadding*2}
-.file a {margin-left:$defpadding*6}
+.file p {margin-right:$defpadding*6; line-height:$thumbnailwidth/2}
 
 form {padding:$defpadding; text-align:right}
 form input {width:$defpadding*3; height:$defpadding*3}

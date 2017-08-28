@@ -54,21 +54,17 @@
 
 	var _reactDom = __webpack_require__(32);
 
-	var _FrontPanel = __webpack_require__(178);
+	var _LiveVideo = __webpack_require__(178);
 
-	var _AssessmentCriteria = __webpack_require__(180);
+	var _ControlPanel = __webpack_require__(180);
 
-	var _Sections = __webpack_require__(182);
+	var _Recordings = __webpack_require__(181);
 
-	var _CreationGuide = __webpack_require__(183);
+	var _Picker = __webpack_require__(183);
 
-	var _PosterGuide = __webpack_require__(184);
+	var _Preferences = __webpack_require__(184);
 
-	var _Resources = __webpack_require__(185);
-
-	var _SideMenu = __webpack_require__(186);
-
-	__webpack_require__(187);
+	__webpack_require__(185);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -76,16 +72,9 @@
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //Try and optimise scaling functions.  Think more ES6 (Add some constants for shorthand checking of state)
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	//Hode until resize has happened
-	//Minimise state where possible
-
-	//Add Text import
-	//Add Clock and Calendar
-	//Language picker
-	//Look through React course for anything else useful
-	//Make classes as dynamic as possible
+	var log = console.log;
 
 	var App = function (_React$Component) {
 	    _inherits(App, _React$Component);
@@ -93,22 +82,36 @@
 	    function App(props) {
 	        _classCallCheck(this, App);
 
-	        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
+	        var _this2 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
-	        _this.sideMenuMargin = 460;
-	        _this.state = {
-	            status: 'not initialised',
-	            showSidemenu: false,
-	            textFile: '',
-	            scaleAmount: 1
+	        _this2.localStream = null;
+	        _this2.remoteStreamElement = null;
+	        _this2.currRecording;
+	        _this2.recorder = null;
+	        _this2.blobArray = [];
+	        _this2.blob = null;
+	        _this2.mime = ['video/webm', 'audio/ogg'];
+	        _this2.ext = ['.webm', '.ogg'], _this2.isRecording = false;
+	        _this2.audioCtx = null;
+	        _this2.combineRecordings = false;
+	        _this2.state = {
+	            cameraReady: false,
+	            showPreferences: false,
+	            recordings: []
 	        };
-	        _this.handleClick = _this.handleClick.bind(_this);
-	        _this.calculateScaling = _this.calculateScaling.bind(_this);
-	        _this.onResize = _this.onResize.bind(_this);
-	        _this.setScale = _this.setScale.bind(_this);
-	        _this.setScalePosition = _this.setScalePosition.bind(_this);
-	        window.addEventListener('resize', _this.onResize, false);
-	        return _this;
+	        _this2.toggleRecording = _this2.toggleRecording.bind(_this2);
+	        _this2.localStreamAvailable = _this2.localStreamAvailable.bind(_this2);
+	        _this2.remoteStreamElementAvailable = _this2.remoteStreamElementAvailable.bind(_this2);
+	        _this2.preferencesAvailable = _this2.preferencesAvailable.bind(_this2);
+	        _this2.recordStart = _this2.recordStart.bind(_this2);
+	        _this2.recordStop = _this2.recordStop.bind(_this2);
+	        _this2.readBlob = _this2.readBlob.bind(_this2);
+	        _this2.calculateScaling = _this2.calculateScaling.bind(_this2);
+	        _this2.onResize = _this2.onResize.bind(_this2);
+	        _this2.setScale = _this2.setScale.bind(_this2);
+	        _this2.setScalePosition = _this2.setScalePosition.bind(_this2);
+	        window.addEventListener('resize', _this2.onResize, false);
+	        return _this2;
 	    }
 
 	    _createClass(App, [{
@@ -116,67 +119,156 @@
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
-	                { id: 'main', role: 'main', className: 'main' },
+	                { className: 'container' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { id: 'sidemenu', className: 'sidemenu collapse-sidemenu-' + Number(this.state.showSidemenu) },
-	                    _react2.default.createElement(_SideMenu.SideMenu, { textFile: this.state.textFile })
+	                    { className: 'panel-left' },
+	                    _react2.default.createElement(_LiveVideo.LiveVideo, { onLocalStream: this.localStreamAvailable }),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel-control-panel visibility-' + Number(this.state.cameraReady) },
+	                        _react2.default.createElement(_ControlPanel.ControlPanel, { onToggleRecording: this.toggleRecording })
+	                    )
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { id: 'tookit-container', className: 'adjust-for-sidemenu-' + Number(this.state.showSidemenu) },
+	                    { className: 'panel-right' },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { id: 'toolkit', className: 'toolkit', role: '' },
-	                        _react2.default.createElement(_FrontPanel.FrontPanel, { firstName: 'Christopher', lastName: 'John' }),
-	                        _react2.default.createElement(_AssessmentCriteria.AssessmentCriteria, { onSelected: this.handleClick, scaleOffset: this.state.scaleAmount, adjustForSidemenu: Number(this.state.showSidemenu), sideMenuMargin: this.sideMenuMargin }),
-	                        _react2.default.createElement(_Sections.Sections, null),
-	                        _react2.default.createElement(_CreationGuide.CreationGuide, null),
-	                        _react2.default.createElement(_PosterGuide.PosterGuide, null),
-	                        _react2.default.createElement(_Resources.Resources, null)
+	                        { className: 'panel-file-import visibility-' + Number(this.state.cameraReady) },
+	                        _react2.default.createElement(_Picker.Picker, { onRemoteStreamElement: this.remoteStreamElementAvailable })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel-file-export visibility-' + Number(this.state.cameraReady) },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'preferences-panel visibility-' + Number(this.state.showPreferences) },
+	                            _react2.default.createElement(_Preferences.Preferences, { onPreferences: this.preferencesAvailable })
+	                        ),
+	                        _react2.default.createElement(_Recordings.Recordings, { files: this.state.recordings })
 	                    )
 	                )
 	            );
 	        }
 	    }, {
-	        key: 'handleClick',
-	        value: function handleClick(data) {
-	            console.log('Click in parent: ' + data);
+	        key: 'localStreamAvailable',
+	        value: function localStreamAvailable(mediaStream) {
+	            if (mediaStream != null) {
+	                this.localStream = mediaStream;
+	                this.setState({
+	                    cameraReady: true
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'remoteStreamElementAvailable',
+	        value: function remoteStreamElementAvailable(ele) {
+	            if (ele != undefined) {
+	                this.remoteStreamElement = ele;
+	                this.setState({
+	                    showPreferences: true
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'preferencesAvailable',
+	        value: function preferencesAvailable(preferences) {
+	            this.combineRecordings = preferences;
+	        }
+	    }, {
+	        key: 'toggleRecording',
+	        value: function toggleRecording() {
+	            if (this.isRecording == false) {
+	                this.isRecording = true;
+	                this.recordStart();
+	            } else {
+	                this.isRecording = false;
+	                this.recordStop();
+	            }
+	        }
+	    }, {
+	        key: 'recordStart',
+	        value: function recordStart() {
+	            this.blobArray = [];
+	            if (this.remoteStreamElement == null && this.combineRecordings == false) {
+	                this.recorder = new window.MediaRecorder(this.localStream);
+	            } else {
+	                if (this.audioCtx != null) {
+	                    this.audioCtx.close();
+	                }
+	                this.audioCtx = new AudioContext();
+	                var destination = this.audioCtx.createMediaStreamDestination();
+	                var sourceNode = this.audioCtx.createMediaElementSource(this.remoteStreamElement);
+	                sourceNode.connect(destination);
+	                sourceNode.connect(this.audioCtx.destination);
+	                var trackArray = [];
+	                trackArray = trackArray.concat(this.localStream.getTracks());
+	                trackArray = trackArray.concat(destination.stream.getAudioTracks()[0]);
+	                var stream = new MediaStream(trackArray);
+	                this.recorder = new window.MediaRecorder(stream);
+	            }
+	            var _this = this;
+	            this.recorder.ondataavailable = function (event) {
+	                if (event.data.size > 0) {
+	                    log('ondataavailable');
+	                    //log (event.data);
+	                    _this.blobArray.push(event.data);
+	                }
+	            };
+	            this.recorder.onstop = function () {
+	                _this.recorder = null;
+	                if (_this.blobArray.length > 0) {
+	                    var blob = new window.Blob(_this.blobArray, {
+	                        type: _this.mime[0]
+	                    });
+	                    _this.readBlob(blob);
+	                }
+	            };
+	            this.recorder.start();
+	        }
+	    }, {
+	        key: 'recordStop',
+	        value: function recordStop() {
+	            this.recorder.stop();
+	        }
+	    }, {
+	        key: 'readBlob',
+	        value: function readBlob(blob) {
+	            log('readblob');
+	            log(blob);
+	            this.blob = blob;
+	            var d = new Date();
+	            var n = d.getTime();
+	            blob.lastModifiedDate = d;
+	            blob.name = String(n) + (String(Math.floor(Math.random() * 100000 + 1)) + this.ext[0]);
+	            var blobURL = window.URL.createObjectURL(blob);
+	            var recordings = this.state.recordings;
+	            recordings.unshift({ filename: String(recordings.length + 1) + ') ' + blob.name, fileaddress: blobURL });
 	            this.setState({
-	                status: 'initialised',
-	                showSidemenu: !this.state.showSidemenu,
-	                textFile: data
+	                recordings: recordings
 	            });
-	            this.calculateScaling(!this.state.showSidemenu);
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.calculateScaling(this.state.showSidemenu);
+	            this.calculateScaling();
 	        }
 	    }, {
 	        key: 'onResize',
 	        value: function onResize() {
-	            this.calculateScaling(this.state.showSidemenu);
+	            this.calculateScaling();
 	        }
 	    }, {
 	        key: 'calculateScaling',
-	        value: function calculateScaling(direction) {
-	            if (direction == true && document.getElementById('react-container') != null && document.getElementById('sidemenu') != null && document.getElementById('toolkit') != null) {
-	                if ((window.innerWidth - document.getElementById('sidemenu').clientWidth) * 100 / document.getElementById('toolkit').clientWidth / 100 > 1) {
-	                    this.setScale(document.getElementById('toolkit'), (document.getElementById('react-container').clientWidth - document.getElementById('sidemenu').clientWidth) * 100 / document.getElementById('toolkit').clientWidth / 100);
-	                    this.setScalePosition(document.getElementById('toolkit'), 'left top 0');
+	        value: function calculateScaling() {
+	            if (document.getElementById('react-container') != undefined) {
+	                if (window.innerWidth * 100 / document.getElementById('react-container').clientWidth / 100 > 1) {
+	                    this.setScale(document.getElementById('react-container'));
+	                    this.setScalePosition(document.getElementById('react-container'));
 	                } else {
-	                    this.setScale(document.getElementById('toolkit'), (window.innerWidth - document.getElementById('sidemenu').clientWidth) * 100 / document.getElementById('toolkit').clientWidth / 100);
-	                    this.setScalePosition(document.getElementById('toolkit'), 'left top 0');
-	                }
-	            } else if (document.getElementById('sidemenu') != null && document.getElementById('toolkit') != null) {
-	                if (window.innerWidth * 100 / document.getElementById('toolkit').clientWidth / 100 > 1) {
-	                    this.setScale(document.getElementById('toolkit'));
-	                    this.setScalePosition(document.getElementById('toolkit'));
-	                } else {
-	                    this.setScale(document.getElementById('toolkit'), window.innerWidth * 100 / document.getElementById('toolkit').clientWidth / 100);
-	                    this.setScalePosition(document.getElementById('toolkit'), 'left top 0');
+	                    this.setScale(document.getElementById('react-container'), window.innerWidth * 100 / document.getElementById('react-container').clientWidth / 100);
+	                    this.setScalePosition(document.getElementById('react-container'), 'left top 0');
 	                }
 	            }
 	        }
@@ -185,9 +277,6 @@
 	        value: function setScale(target) {
 	            var scaleAmount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
-	            this.setState({
-	                scaleAmount: scaleAmount
-	            });
 	            target.style.transform = 'scale(' + scaleAmount + ')';
 	            target.style.WebkitTransform = 'scale(' + scaleAmount + ')';
 	            target.style.msTransform = 'scale(' + scaleAmount + ')';
@@ -21651,7 +21740,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.FrontPanel = undefined;
+	exports.LiveVideo = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -21659,9 +21748,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _english = __webpack_require__(179);
+	var _prefs = __webpack_require__(179);
 
-	var _english2 = _interopRequireDefault(_english);
+	var _prefs2 = _interopRequireDefault(_prefs);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21671,94 +21760,112 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var FrontPanel = exports.FrontPanel = function (_React$Component) {
-	    _inherits(FrontPanel, _React$Component);
+	var LiveVideo = exports.LiveVideo = function (_React$Component) {
+	    _inherits(LiveVideo, _React$Component);
 
-	    function FrontPanel(props) {
-	        _classCallCheck(this, FrontPanel);
+	    function LiveVideo(props) {
+	        _classCallCheck(this, LiveVideo);
 
-	        var _this = _possibleConstructorReturn(this, (FrontPanel.__proto__ || Object.getPrototypeOf(FrontPanel)).call(this));
+	        var _this2 = _possibleConstructorReturn(this, (LiveVideo.__proto__ || Object.getPrototypeOf(LiveVideo)).call(this));
 
-	        _this.firstName = props.firstName;
-	        _this.lastName = props.lastName;
-	        _this.end = new Date('11/08/2017 02:00 PM');
-	        _this._second = 1000;
-	        _this._minute = _this._second * 60;
-	        _this._hour = _this._minute * 60;
-	        _this._day = _this._hour * 24;
-
-	        _this.timer = setInterval(_this.formatTimer, 1000);
-
-	        _this.state = {
-	            daysr: 0,
-	            hoursr: 0,
-	            minutesr: 0,
-	            secondsr: 0
-
+	        _this2.mediaStream = null;
+	        _this2.cameraConnectAttempt = 0;
+	        _this2.cameraConnectAttemptLimit = 5;
+	        _this2.state = {
+	            cameraReady: false
 	        };
-	        return _this;
+	        _this2.cameraReady = _this2.cameraReady.bind(_this2);
+	        _this2.connectToCamera = _this2.connectToCamera.bind(_this2);
+	        _this2.fallbackResolution = _this2.fallbackResolution.bind(_this2);
+	        _this2.timer = null;
+	        return _this2;
 	    }
 
-	    _createClass(FrontPanel, [{
+	    _createClass(LiveVideo, [{
 	        key: 'render',
 	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'front-panel' },
-	                _react2.default.createElement('img', { src: './assets/images/front-panel.png', alt: '', title: '', width: '1731', height: '365' }),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'front-panel-lbl' },
-	                    _react2.default.createElement(
-	                        'h1',
-	                        null,
-	                        'Portfolio Toolkit',
-	                        _react2.default.createElement('br', null),
-	                        ' ',
-	                        this.formatUser()
-	                    ),
-	                    _react2.default.createElement(
-	                        'h2',
-	                        null,
-	                        this.formatTimer()
-	                    )
-	                )
-	            );
-	            var timer;
-	            timer = setInterval(this.formatTimer, 1000);
+	            return _react2.default.createElement('video', { className: 'camera', id: 'camera', width: _prefs2.default.config1.width, height: _prefs2.default.config2.height, autoPlay: true });
 	        }
 	    }, {
-	        key: 'formatUser',
-	        value: function formatUser() {
-	            return this.firstName + ' ' + this.lastName;
-	        }
-	    }, {
-	        key: 'formatTimer',
-	        value: function formatTimer() {
-	            console.log('Firing');
+	        key: 'cameraReady',
+	        value: function cameraReady() {
+	            var pref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _prefs2.default.config1;
+
+	            console.log('cameraReady, cancelling all timers');
+	            console.log('Connection attempts: ' + this.cameraConnectAttempt);
 	            clearInterval(this.timer);
-	            var now = new Date();
-	            var distance = this.end - now;
-	            if (distance <= 0) {
-	                console.log('1');
-	                //clearInterval(timer);
-	                return '';
-	            } else {
-	                console.log('2');
-	                console.log('Firing');
-	                return Math.floor(distance / this._day) + ', ' + Math.floor(distance % this._day / this._hour) + ', ' + Math.floor(distance % this._hour / this._minute) + ', ' + Math.floor(distance % this._minute / this._second);
-	            }
+	            this.setState({
+	                cameraReady: true
+	            });
+	            this.props.onLocalStream(this.mediaStream);
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
+	            if (document.getElementById('camera') != undefined) {
+	                document.getElementById('camera').addEventListener('canplay', this.cameraReady);
+	                this.connectToCamera();
+	            }
+	        }
+	    }, {
+	        key: 'connectToCamera',
+	        value: function connectToCamera() {
+	            var pref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _prefs2.default.config1;
+
+	            console.log('connectToCamera');
+	            ++this.cameraConnectAttempt;
+	            var _this = this;
+	            var video_constraints = {
+	                width: { min: pref.width, ideal: pref.width, max: pref.width },
+	                height: { min: pref.height, ideal: pref.height, max: pref.height }
+	            };
+	            var device = navigator.mediaDevices.getUserMedia({ audio: false, video: video_constraints });
+	            device.then(function (mediaStream) {
+	                console.log('Device response but camera not yet ready');
+	                //document.getElementById('camera').setAttribute('src', window.URL.createObjectURL(mediaStream)); //Deprecated
+	                document.getElementById('camera').srcObject = mediaStream;
+	                _this.mediaStream = mediaStream;
+	                console.log('Setting interval to check camera is ready');
+	                _this.timer = setInterval(_this.fallbackResolution, 10000);
 	            });
+	            device.catch(function (err) {
+	                console.log('Device connect error, Number of connect attempts: ' + _this.cameraConnectAttempt + ' Total attempts allowed: ' + _this.cameraConnectAttemptLimit);
+	                if (_this.cameraConnectAttempt < _this.cameraConnectAttemptLimit) {
+	                    console.log('Attempting to connect again...');
+	                    setTimeout(function () {
+	                        console.log('Trying different camera resolution...');
+	                        if (_prefs2.default['config' + String(_this.cameraConnectAttempt + 1)] != undefined) {
+	                            _this.connectToCamera(_prefs2.default['config' + String(_this.cameraConnectAttempt + 1)]);
+	                        } else {
+	                            _this.connectToCamera();
+	                        }
+	                    }, 3000);
+	                } else {
+	                    console.log('Giving up connection attempts');
+	                    console.log('Connection attempts: ' + _this.cameraConnectAttempt);
+	                    alert(err);
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'fallbackResolution',
+	        value: function fallbackResolution() {
+	            console.log('fallbackResolution: cameraReady: ' + this.state.cameraReady);
+	            clearInterval(this.timer);
+	            if (this.state.cameraReady == false && this.cameraConnectAttempt < this.cameraConnectAttemptLimit) {
+	                console.log('Starting again');
+	                this.mediaStream.getVideoTracks()[0].stop();
+	                this.mediaStream = null;
+	                document.getElementById('camera').setAttribute('src', null);
+	                this.connectToCamera(_prefs2.default.fallback);
+	            } else {
+	                console.log('Giving up connection attempts');
+	                alert('Unable to connect to camera');
+	            }
 	        }
 	    }]);
 
-	    return FrontPanel;
+	    return LiveVideo;
 	}(_react2.default.Component);
 
 /***/ },
@@ -21766,7 +21873,34 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-		"skiplink": "Skip to primary content"
+		"config1": {
+			"width": "1280",
+			"height": "720"
+		},
+		"config2": {
+			"width": "1280",
+			"height": "720"
+		},
+		"config3": {
+			"width": "640",
+			"height": "360"
+		},
+		"config4": {
+			"width": "640",
+			"height": "480"
+		},
+		"config5": {
+			"width": "320",
+			"height": "240"
+		},
+		"fallback": {
+			"width": "640",
+			"height": "360"
+		},
+		"thumbnail": {
+			"width": "160",
+			"height": "80"
+		}
 	};
 
 /***/ },
@@ -21778,15 +21912,13 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.AssessmentCriteria = undefined;
+	exports.ControlPanel = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
-
-	var _Tooltip = __webpack_require__(181);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21796,88 +21928,45 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var AssessmentCriteria = exports.AssessmentCriteria = function (_React$Component) {
-	    _inherits(AssessmentCriteria, _React$Component);
+	var ControlPanel = exports.ControlPanel = function (_React$Component) {
+	    _inherits(ControlPanel, _React$Component);
 
-	    function AssessmentCriteria() {
-	        _classCallCheck(this, AssessmentCriteria);
+	    function ControlPanel(props) {
+	        _classCallCheck(this, ControlPanel);
 
-	        var _this = _possibleConstructorReturn(this, (AssessmentCriteria.__proto__ || Object.getPrototypeOf(AssessmentCriteria)).call(this));
+	        var _this = _possibleConstructorReturn(this, (ControlPanel.__proto__ || Object.getPrototypeOf(ControlPanel)).call(this));
 
-	        _this.handleClick = _this.handleClick.bind(_this);
-	        _this.handleMouseEnter = _this.handleMouseEnter.bind(_this);
-	        _this.handleMouseLeave = _this.handleMouseLeave.bind(_this);
-	        _this.handleMouseMove = _this.handleMouseMove.bind(_this);
 	        _this.state = {
-	            showTooltip: false,
-	            l: 0,
-	            b: 0
+	            toggleClick: false
 	        };
+	        _this.handleClick = _this.handleClick.bind(_this);
 	        return _this;
 	    }
 
-	    _createClass(AssessmentCriteria, [{
-	        key: 'handleClick',
-	        value: function handleClick(event) {
-	            this.props.onSelected('assessment-criteria');
-	        }
-	    }, {
-	        key: 'handleMouseEnter',
-	        value: function handleMouseEnter(event) {
-	            this.setState({
-	                showTooltip: true
-	            });
-	        }
-	    }, {
-	        key: 'handleMouseLeave',
-	        value: function handleMouseLeave(event) {
-	            this.setState({
-	                showTooltip: false
-	            });
-	        }
-	    }, {
-	        key: 'handleMouseMove',
-	        value: function handleMouseMove(event) {
-	            var lPos = event.clientX * (1 / this.props.scaleOffset);
-	            var bPos = event.clientY * (1 / this.props.scaleOffset) - document.getElementById('assessment-criteria-1').offsetTop;
-	            if (this.props.adjustForSidemenu == 1) {
-	                lPos = event.clientX * (1 / this.props.scaleOffset) - this.props.sideMenuMargin * (1 / this.props.scaleOffset);
-	                bPos = event.clientY * (1 / this.props.scaleOffset) - document.getElementById('assessment-criteria-1').offsetTop;
-	            }
-	            this.setState({
-	                l: lPos,
-	                b: bPos
-	            });
-	        }
-	    }, {
+	    _createClass(ControlPanel, [{
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
-	                null,
-	                _react2.default.createElement(
-	                    'div',
-	                    { id: 'assessment-criteria-1', className: 'assessment-criteria-1', onClick: this.handleClick, onMouseEnter: this.handleMouseEnter, onMouseLeave: this.handleMouseLeave, onMouseMove: this.handleMouseMove },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'tooltip-' + Number(this.state.showTooltip), style: { left: this.state.l, top: this.state.b } },
-	                        _react2.default.createElement(_Tooltip.Tooltip, { lbl: 'Tooltip' })
-	                    ),
-	                    _react2.default.createElement('img', { src: './assets/images/assessment-criteria-1.png', alt: '', title: '', width: '696', height: '382' })
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'assessment-criteria-2', onClick: this.handleClick },
-	                    _react2.default.createElement('img', { src: './assets/images/assessment-criteria-2.png', alt: '', title: '', width: '696', height: '382' })
-	                )
+	                { className: 'icon pulse-' + Number(this.state.toggleClick), onClick: this.handleClick },
+	                _react2.default.createElement('img', { src: 'assets/images/icon-record.png', alt: '', title: '' }),
+	                ' '
 	            );
+	        }
+	    }, {
+	        key: 'handleClick',
+	        value: function handleClick() {
+	            this.props.onToggleRecording();
+	            this.setState({
+	                toggleClick: !this.state.toggleClick
+	            });
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {}
 	    }]);
 
-	    return AssessmentCriteria;
+	    return ControlPanel;
 	}(_react2.default.Component);
 
 /***/ },
@@ -21889,13 +21978,15 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.Tooltip = undefined;
+	exports.Recordings = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _Thumbnail = __webpack_require__(182);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21905,27 +21996,54 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Tooltip = exports.Tooltip = function (_React$Component) {
-	    _inherits(Tooltip, _React$Component);
+	var Recordings = exports.Recordings = function (_React$Component) {
+	    _inherits(Recordings, _React$Component);
 
-	    function Tooltip() {
-	        _classCallCheck(this, Tooltip);
+	    function Recordings(props) {
+	        _classCallCheck(this, Recordings);
 
-	        return _possibleConstructorReturn(this, (Tooltip.__proto__ || Object.getPrototypeOf(Tooltip)).call(this));
+	        return _possibleConstructorReturn(this, (Recordings.__proto__ || Object.getPrototypeOf(Recordings)).call(this));
 	    }
 
-	    _createClass(Tooltip, [{
+	    _createClass(Recordings, [{
 	        key: 'render',
 	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                this.props.lbl
-	            );
+	            var fileList = [];
+	            var i = 0;
+	            var files = this.props.files;
+	            for (var item in files) {
+	                fileList.push(_react2.default.createElement(
+	                    'div',
+	                    { key: i, className: 'file' },
+	                    _react2.default.createElement(_Thumbnail.Thumbnail, { fileaddress: files[item].fileaddress }),
+	                    _react2.default.createElement(
+	                        'p',
+	                        null,
+	                        _react2.default.createElement(
+	                            'a',
+	                            { download: files[item].filename, href: files[item].fileaddress },
+	                            files[item].filename
+	                        )
+	                    )
+	                ));
+	                ++i;
+	            }
+	            if (fileList.length != 0) {
+	                return _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    fileList
+	                );
+	            } else {
+	                return null;
+	            }
 	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {}
 	    }]);
 
-	    return Tooltip;
+	    return Recordings;
 	}(_react2.default.Component);
 
 /***/ },
@@ -21937,13 +22055,17 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.Sections = undefined;
+	exports.Thumbnail = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _prefs = __webpack_require__(179);
+
+	var _prefs2 = _interopRequireDefault(_prefs);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21953,39 +22075,33 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Sections = exports.Sections = function (_React$Component) {
-	    _inherits(Sections, _React$Component);
+	var Thumbnail = exports.Thumbnail = function (_React$Component) {
+	    _inherits(Thumbnail, _React$Component);
 
-	    function Sections(props) {
-	        _classCallCheck(this, Sections);
+	    function Thumbnail(props) {
+	        _classCallCheck(this, Thumbnail);
 
-	        var _this = _possibleConstructorReturn(this, (Sections.__proto__ || Object.getPrototypeOf(Sections)).call(this));
-
-	        _this.state = {
-	            status: 'not initialised'
-	        };
-	        return _this;
+	        return _possibleConstructorReturn(this, (Thumbnail.__proto__ || Object.getPrototypeOf(Thumbnail)).call(this));
 	    }
 
-	    _createClass(Sections, [{
+	    _createClass(Thumbnail, [{
 	        key: 'render',
 	        value: function render() {
+	            var pref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _prefs2.default.thumbnail;
+
+	            var fileaddress = this.props.fileaddress;
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'sections' },
-	                _react2.default.createElement('img', { src: './assets/images/sections.png', alt: '', title: '', width: '528', height: '704' })
+	                null,
+	                _react2.default.createElement('video', { width: pref.width, height: pref.height, src: fileaddress })
 	            );
 	        }
 	    }, {
 	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
-	            });
-	        }
+	        value: function componentDidMount() {}
 	    }]);
 
-	    return Sections;
+	    return Thumbnail;
 	}(_react2.default.Component);
 
 /***/ },
@@ -21997,7 +22113,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.CreationGuide = undefined;
+	exports.Picker = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22013,60 +22129,110 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var CreationGuide = exports.CreationGuide = function (_React$Component) {
-	    _inherits(CreationGuide, _React$Component);
+	var Picker = exports.Picker = function (_React$Component) {
+	    _inherits(Picker, _React$Component);
 
-	    function CreationGuide(props) {
-	        _classCallCheck(this, CreationGuide);
+	    function Picker(props) {
+	        _classCallCheck(this, Picker);
 
-	        var _this = _possibleConstructorReturn(this, (CreationGuide.__proto__ || Object.getPrototypeOf(CreationGuide)).call(this));
+	        var _this = _possibleConstructorReturn(this, (Picker.__proto__ || Object.getPrototypeOf(Picker)).call(this));
 
-	        _this.state = {
-	            status: 'not initialised'
-	        };
+	        _this.srcWidth = 640;
+	        _this.srcHeight = 360;
+	        _this.mimeTypes = ['audio/mp3', 'audio/mpeg', 'video/mp4'];
+	        _this.fileDragOver = _this.fileDragOver.bind(_this);
+	        _this.fileDragDrop = _this.fileDragDrop.bind(_this);
 	        return _this;
 	    }
 
-	    _createClass(CreationGuide, [{
+	    _createClass(Picker, [{
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'creation-guide-1' },
-	                    _react2.default.createElement('img', { src: './assets/images/creation-guide-1.png', alt: '', title: '', width: '476', height: '792' })
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'creation-guide-2' },
-	                    _react2.default.createElement('img', { src: './assets/images/creation-guide-2.png', alt: '', title: '', width: '476', height: '792' })
-	                )
+	                _react2.default.createElement('div', { id: 'player', className: 'player' }),
+	                _react2.default.createElement('div', { id: 'picker', className: 'picker' })
 	            );
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
-	            });
+	            if (document.getElementById('picker') != null) {
+	                document.getElementById('picker').addEventListener('dragover', this.fileDragOver);
+	                document.getElementById('picker').addEventListener('drop', this.fileDragDrop);
+	            }
+	        }
+	    }, {
+	        key: 'fileDragOver',
+	        value: function fileDragOver(event) {
+	            event.stopPropagation();
+	            event.preventDefault();
+	            if (event.dataTransfer != undefined) {
+	                event.dataTransfer.dropEffect = 'copy';
+	            } else if (event.originalEvent.dataTransfer != undefined) {
+	                event.originalEvent.dataTransfer.dropEffect = 'copy';
+	            }
+	        }
+	    }, {
+	        key: 'fileDragDrop',
+	        value: function fileDragDrop(event) {
+	            event.stopPropagation();
+	            event.preventDefault();
+	            if (event.dataTransfer != undefined) {
+	                var files = event.dataTransfer.files;
+	            } else if (event.originalEvent.dataTransfer != undefined) {
+	                var files = event.originalEvent.dataTransfer.files;
+	            }
+	            if (files.length > 0) {
+	                var file = files[0];
+	                this.processFile(file);
+	            }
+	        }
+	    }, {
+	        key: 'processFile',
+	        value: function processFile(file) {
+	            if (file.type == this.mimeTypes[0] || file.type == this.mimeTypes[1]) {
+	                this.loadFile(file, file.type, 'audio');
+	            } else if (file.type == this.mimeTypes[2]) {
+	                this.loadFile(file, file.type, 'video');
+	            } else {
+	                alert('Sorry, only mp3 or mp4 files allowed');
+	            }
+	        }
+	    }, {
+	        key: 'loadFile',
+	        value: function loadFile(file, mimeType, fileType) {
+	            var _this2 = this;
+
+	            var reader = new FileReader();
+	            reader.onloadend = function (event) {
+	                if (event.target.readyState == FileReader.DONE) {
+	                    console.log(event.target.result);
+	                    var sourceTag = '<source src="' + event.target.result + '" type="' + mimeType + '">';
+	                    var mediatag = '<' + fileType + ' id="picker-media" width="' + _this2.srcWidth + '" height="' + _this2.srcHeight + '" controls autoplay>' + sourceTag + '</' + fileType + '>';
+	                    document.getElementById('player').innerHTML = mediatag;
+	                }
+	                reader = null;
+	                _this2.props.onRemoteStreamElement(document.getElementById('picker-media'));
+	            };
+	            reader.readAsDataURL(file);
 	        }
 	    }]);
 
-	    return CreationGuide;
+	    return Picker;
 	}(_react2.default.Component);
 
 /***/ },
 /* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.PosterGuide = undefined;
+	exports.Preferences = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22082,186 +22248,63 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var PosterGuide = exports.PosterGuide = function (_React$Component) {
-	    _inherits(PosterGuide, _React$Component);
+	var Preferences = exports.Preferences = function (_React$Component) {
+	    _inherits(Preferences, _React$Component);
 
-	    function PosterGuide(props) {
-	        _classCallCheck(this, PosterGuide);
+	    function Preferences(props) {
+	        _classCallCheck(this, Preferences);
 
-	        var _this = _possibleConstructorReturn(this, (PosterGuide.__proto__ || Object.getPrototypeOf(PosterGuide)).call(this));
+	        var _this = _possibleConstructorReturn(this, (Preferences.__proto__ || Object.getPrototypeOf(Preferences)).call(this));
 
 	        _this.state = {
-	            status: 'not initialised'
+	            value: false
 	        };
+	        _this.handleChange = _this.handleChange.bind(_this);
 	        return _this;
 	    }
 
-	    _createClass(PosterGuide, [{
-	        key: 'render',
+	    _createClass(Preferences, [{
+	        key: "handleChange",
+	        value: function handleChange(event) {
+	            this.props.onPreferences(!this.state.value);
+	            this.setState({
+	                value: !this.state.value
+	            });
+	        }
+	    }, {
+	        key: "render",
 	        value: function render() {
 	            return _react2.default.createElement(
-	                'div',
+	                "div",
 	                null,
 	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'poster-guide-1' },
-	                    _react2.default.createElement('img', { src: './assets/images/poster-guide-1.png', alt: '', title: '', width: '468', height: '784' })
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'poster-guide-2' },
-	                    _react2.default.createElement('img', { src: './assets/images/poster-guide-2.png', alt: '', title: '', width: '468', height: '784' })
+	                    "form",
+	                    { onSubmit: "", action: "" },
+	                    _react2.default.createElement(
+	                        "label",
+	                        null,
+	                        "Record as simultaneous interpretation:",
+	                        _react2.default.createElement("input", { type: "checkbox", name: "dub", value: "on", onChange: this.handleChange })
+	                    )
 	                )
 	            );
 	        }
 	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
-	            });
-	        }
+	        key: "componentDidMount",
+	        value: function componentDidMount() {}
 	    }]);
 
-	    return PosterGuide;
+	    return Preferences;
 	}(_react2.default.Component);
 
 /***/ },
 /* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.Resources = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Resources = exports.Resources = function (_React$Component) {
-	    _inherits(Resources, _React$Component);
-
-	    function Resources(props) {
-	        _classCallCheck(this, Resources);
-
-	        var _this = _possibleConstructorReturn(this, (Resources.__proto__ || Object.getPrototypeOf(Resources)).call(this));
-
-	        _this.state = {
-	            status: 'not initialised'
-	        };
-	        window.addEventListener('resize', _this.onResize, false);
-	        return _this;
-	    }
-
-	    _createClass(Resources, [{
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'resources' },
-	                _react2.default.createElement('img', { src: './assets/images/resources.png', alt: '', title: '', width: '557', height: '352' })
-	            );
-	        }
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
-	            });
-	        }
-	    }]);
-
-	    return Resources;
-	}(_react2.default.Component);
-
-/***/ },
-/* 186 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.SideMenu = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var SideMenu = exports.SideMenu = function (_React$Component) {
-	    _inherits(SideMenu, _React$Component);
-
-	    function SideMenu(props) {
-	        _classCallCheck(this, SideMenu);
-
-	        var _this = _possibleConstructorReturn(this, (SideMenu.__proto__ || Object.getPrototypeOf(SideMenu)).call(this));
-
-	        _this.textFile = props.textFile;
-	        _this.state = {
-	            status: 'not initialised'
-	        };
-	        return _this;
-	    }
-
-	    _createClass(SideMenu, [{
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                this.returnText()
-	            );
-	        }
-	    }, {
-	        key: 'returnText',
-	        value: function returnText() {
-	            console.log('Text: ' + this.textFile);
-	            return this.textFile;
-	        }
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.setState({
-	                status: 'initialised'
-	            });
-	        }
-	    }]);
-
-	    return SideMenu;
-	}(_react2.default.Component);
-
-/***/ },
-/* 187 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(188);
+	var content = __webpack_require__(186);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(191)(content, {});
@@ -22281,21 +22324,21 @@
 	}
 
 /***/ },
-/* 188 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(189)();
+	exports = module.exports = __webpack_require__(187)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "@-webkit-keyframes assessment-criteria-2 {\n  0% {\n    left: -200px; }\n  100% {\n    left: -20px; } }\n\n@keyframes assessment-criteria-2 {\n  0% {\n    left: -200px; }\n  100% {\n    left: -20px; } }\n\n@-webkit-keyframes sections {\n  0% {\n    left: 100px;\n    -webkit-transform: rotate(-14deg);\n    transform: rotate(-14deg); }\n  50% {\n    left: 90px;\n    top: 60px;\n    -webkit-transform: rotate(-7deg);\n    transform: rotate(-7deg); }\n  100% {\n    left: 100px;\n    -webkit-transform: rotate(-14deg);\n    transform: rotate(-14deg); } }\n\n@keyframes sections {\n  0% {\n    left: 100px;\n    -webkit-transform: rotate(-14deg);\n    transform: rotate(-14deg); }\n  50% {\n    left: 90px;\n    top: 60px;\n    -webkit-transform: rotate(-7deg);\n    transform: rotate(-7deg); }\n  100% {\n    left: 100px;\n    -webkit-transform: rotate(-14deg);\n    transform: rotate(-14deg); } }\n\n@-webkit-keyframes creation-guide-2 {\n  0% {\n    left: 750px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); }\n  50% {\n    left: 770px;\n    top: 100px;\n    -webkit-transform: rotate(-7deg);\n    transform: rotate(-7deg); }\n  100% {\n    left: 750px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); } }\n\n@keyframes creation-guide-2 {\n  0% {\n    left: 750px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); }\n  50% {\n    left: 770px;\n    top: 100px;\n    -webkit-transform: rotate(-7deg);\n    transform: rotate(-7deg); }\n  100% {\n    left: 750px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); } }\n\n@-webkit-keyframes creation-guide-1 {\n  0% {\n    top: -400px; }\n  100% {\n    top: 100px; } }\n\n@keyframes creation-guide-1 {\n  0% {\n    top: -400px; }\n  100% {\n    top: 100px; } }\n\n@-webkit-keyframes poster-guide-1 {\n  0% {\n    top: -420px; }\n  100% {\n    top: 80px; } }\n\n@keyframes poster-guide-1 {\n  0% {\n    top: -420px; }\n  100% {\n    top: 80px; } }\n\n@-webkit-keyframes poster-guide-2 {\n  0% {\n    left: 1300px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); }\n  50% {\n    left: 1200px;\n    top: 75px;\n    -webkit-transform: rotate(15deg);\n    transform: rotate(15deg); }\n  100% {\n    left: 1300px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); } }\n\n@keyframes poster-guide-2 {\n  0% {\n    left: 1300px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); }\n  50% {\n    left: 1200px;\n    top: 75px;\n    -webkit-transform: rotate(15deg);\n    transform: rotate(15deg); }\n  100% {\n    left: 1300px;\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg); } }\n\nbody {\n  font-family: \"Open Sans\", Helvetica, Arial, sans-serif; }\n\nbody, #react-container, .toolkit, .sidemenu {\n  overflow-x: hidden; }\n\nh1, .front-panel {\n  font-weight: 400;\n  text-align: center; }\n\n#react-container {\n  margin: auto;\n  background-color: silver; }\n\n#react-container, .toolkit {\n  width: 1900px;\n  min-height: 940px; }\n\n.toolkit {\n  background-image: url(" + __webpack_require__(190) + ");\n  background-position: center top;\n  background-repeat: no-repeat;\n  background-size: 1900px 940px;\n  position: relative;\n  background-color: white;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s; }\n\n.sidemenu {\n  width: 450px;\n  float: left;\n  background-color: silver;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s; }\n\n.adjust-for-sidemenu-0, .adjust-for-sidemenu-1 {\n  background-color: white; }\n\n.adjust-for-sidemenu-0, .collapse-sidemenu-1 {\n  margin-left: 0px;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s; }\n\n.adjust-for-sidemenu-1 {\n  margin-left: 460px;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s; }\n\n.collapse-sidemenu-0 {\n  margin-left: -460px; }\n\n.tooltip-0, .tooltip-1 {\n  position: absolute;\n  border: 1px solid silver;\n  padding: 20px;\n  border-radius: 5px;\n  background-color: white; }\n\n.tooltip-0 {\n  display: none; }\n\n.tooltip-1 {\n  display: block; }\n\n.sections {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 2;\n  top: 100px;\n  left: 100px;\n  -webkit-animation: \"sections\" 5s infinite;\n  animation: \"sections\" 5s infinite; }\n\n.creation-guide-1 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 3;\n  top: 100px;\n  left: 750px;\n  -webkit-animation: \"creation-guide-1\" 2s;\n  animation: \"creation-guide-1\" 2s; }\n\n.poster-guide-1 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 4;\n  top: 80px;\n  left: 1300px;\n  -webkit-animation: \"poster-guide-1\" 2s;\n  animation: \"poster-guide-1\" 2s; }\n\n.front-panel {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 5;\n  right: 0px;\n  bottom: 0px;\n  left: 0px; }\n\n.assessment-criteria-2 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 6;\n  bottom: 0px;\n  left: -20px;\n  -webkit-animation: \"assessment-criteria-2\" 2s;\n  animation: \"assessment-criteria-2\" 2s; }\n\n.assessment-criteria-1 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 7;\n  bottom: 0px; }\n\n.poster-guide-2 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 8;\n  top: 80px;\n  left: 1300px;\n  -webkit-animation: \"poster-guide-2\" 12s infinite;\n  animation: \"poster-guide-2\" 12s infinite; }\n\n.creation-guide-2 {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 9;\n  top: 120px;\n  left: 750px;\n  -webkit-animation: \"creation-guide-2\" 6s infinite;\n  animation: \"creation-guide-2\" 6s infinite; }\n\n.resources {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 10;\n  right: 0px;\n  bottom: 0px; }\n\n.front-panel-lbl {\n  cursor: pointer;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  position: absolute;\n  z-index: 11;\n  right: 0px;\n  bottom: 80px;\n  left: 0px; }\n\n.sections:hover, .assessment-criteria-1:hover, .creation-guide-2:hover, .resources:hover, .poster-guide-2:hover, .creation-guide-1:hover .creation-guide-2, .poster-guide-1:hover .poster-guide-2 {\n  -webkit-filter: grayscale(100%);\n  /* Safari 6.0 - 9.0 */\n  filter: grayscale(100%);\n  -webkit-transform: \"scale(2.0)\";\n  transform: \"scale(2.0)\"; }\n", ""]);
+	exports.push([module.id, "@-webkit-keyframes pulse {\n  0% {\n    border-width: 1px; }\n  50% {\n    border-width: 5px;\n    border-color: red; }\n  100% {\n    border-width: 1px; } }\n\n@keyframes pulse {\n  0% {\n    border-width: 1px; }\n  50% {\n    border-width: 5px;\n    border-color: red; }\n  100% {\n    border-width: 1px; } }\n\nbody {\n  font-family: \"Open Sans\", Helvetica, Arial, sans-serif;\n  margin: 0px;\n  font-size: 1.4em; }\n\nbody, #react-container {\n  overflow: hidden; }\n\na {\n  color: #4789ec; }\n\n#react-container {\n  margin: auto;\n  width: 1920px;\n  height: 1080px;\n  background-color: white;\n  border: 1px solid silver; }\n\n.visibility-1 {\n  display: block; }\n\n.visibility-0 {\n  display: none; }\n\n.panel-control-panel, .player {\n  text-align: center; }\n\n.icon img {\n  margin-top: 10px; }\n\n.pulse-1 img {\n  -webkit-animation: pulse 2s infinite;\n  animation: pulse 2s infinite;\n  -moz-animation: pulse 2s infinite; }\n\n.panel-file-import {\n  position: relative; }\n\n.panel-file-export {\n  overflow-y: scroll; }\n\n.file p {\n  margin-right: 60px;\n  line-height: 80px; }\n\nform {\n  padding: 10px;\n  text-align: right; }\n\nform input {\n  width: 30px;\n  height: 30px; }\n\n.panel-left {\n  width: 1280px;\n  float: left;\n  height: 1080px;\n  background-color: black; }\n\n.panel-right {\n  width: 639px;\n  float: left;\n  height: 1080px;\n  background-color: grey; }\n\n.camera {\n  width: 1280px;\n  float: left;\n  height: 720px;\n  background-color: #cccccc; }\n\n.panel-file-import {\n  width: 639px;\n  float: left;\n  height: 360px;\n  background-color: #1d478e;\n  background-image: url(" + __webpack_require__(188) + ");\n  background-repeat: no-repeat;\n  background-position: center; }\n\n.panel-file-export {\n  width: 639px;\n  float: left;\n  height: 720px;\n  background-color: white; }\n\n.picker {\n  width: 100px;\n  height: 100px;\n  border: 1px dashed white;\n  border-radius: 5px;\n  background-image: url(" + __webpack_require__(189) + ");\n  background-repeat: no-repeat;\n  background-size: 100px 75px;\n  background-position: center;\n  position: absolute;\n  left: 529px;\n  top: 250px; }\n\n.icon img {\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n  cursor: pointer;\n  border: 1px solid white;\n  border-radius: 5px; }\n\n.player {\n  width: 639px;\n  height: 360px;\n  position: absolute;\n  left: 0px;\n  top: 0px; }\n\n.file {\n  height: 80px;\n  cursor: pointer;\n  background-image: url(" + __webpack_require__(190) + ");\n  background-repeat: no-repeat;\n  background-position: right; }\n\n.file:first-child {\n  background-color: #f0f0f0; }\n\n.file video {\n  float: left; }\n\n.icon img:hover {\n  border: 1px solid red; }\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 189 */
+/* 187 */
 /***/ function(module, exports) {
 
 	/*
@@ -22351,10 +22394,22 @@
 
 
 /***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "b6f44c2f4030a741284ec99938f80686.png";
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "b55470b9c18256db07c58a66fd1fac4e.png";
+
+/***/ },
 /* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "434829c393a99130a23e38a978cf108a.png";
+	module.exports = __webpack_require__.p + "cec7448dbaab4989816cfdde1f64f866.png";
 
 /***/ },
 /* 191 */
