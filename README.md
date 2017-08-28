@@ -1,7 +1,7 @@
 OpenLang
 ======================================
 
-React HTML5 video language lab web application
+HTML5 language lab web application created using React
 
 ![Image representing OpenLang](dist/assets/images/openlang.jpg?raw=true "Image representing OpenLang")
 
