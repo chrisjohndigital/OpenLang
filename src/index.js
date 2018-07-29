@@ -19,7 +19,7 @@ class App extends React.Component {
         this.blobArray = [];
         this.blob=null;
         this.mime = ['video/webm', 'audio/ogg'];
-        this.ext = ['.webm', '.ogg'],
+        this.ext = ['.webm', '.ogg'];
         this.isRecording = false;
         this.audioCtx = null;
         this.combineRecordings=false;
