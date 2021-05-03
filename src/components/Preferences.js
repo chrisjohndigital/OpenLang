@@ -17,7 +17,7 @@ export class Preferences extends React.Component {
     render() {
         return (
             <div>
-                <form onSubmit="" action="">
+                <form>
                     <label>
                     Record as simultaneous interpretation:
                     <input type="checkbox" name="dub" value="on" onChange={this.handleChange} />

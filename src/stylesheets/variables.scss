@@ -23,7 +23,7 @@ $object-height: $appheight, $appheight, $cameraheight, (($cameraheight)/2), (($a
 $object-hover: '', '', '', '', '', '', red, '', '', '', '';
 $object-cursor: '', '', '', '', '', '', pointer, '', pointer, '', '';
 $object-left: '', '', '', '', '', ((($panelrightwidth)-$pickerwidth)-$defpadding), '', 0px, '', '', '';
-$object-top: '', '', '', '', '', ((($cameraheight/2)-$pickerwidth)-$defpadding), '', 0px, '', '', '';
+$object-top: '', '', '', '', '', $defpadding, '', 0px, '', '', '';
 $object-transition: '', '', '', '', '', '', all 0.5s, '', '', '', '';
 $object-background: '', '', '', 'images/icon-video.png', '', 'images/drop-file.png', '', '', 'images/icon-download.png', '', '';
 $object-background-position: '', '', '', 'center', '', 'center', '', '', 'right', '', '';

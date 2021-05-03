@@ -1,11 +1,12 @@
 var webpack = require("webpack");
+var path = require('path');
 
 module.exports = {
 	entry: "./src/index.js",
 	output: {
-		path: "dist/assets",
+		path: path.join(__dirname, "dist/assets"),
 		filename: "bundle.js",
-		publicPath: "assets"
+		publicPath: "/assets/"
 	},
 	devServer: {
 		inline: true,
@@ -13,28 +14,25 @@ module.exports = {
 		port: 3000
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				exclude: /(node_modules)/,
-				loader: ["babel-loader"],
-				query: {
-					presets: ["env", "stage-0", "react"]
-				}
+                use: {
+                    loader: 'babel-loader',
+                        options: {
+                            presets: ["@babel/preset-env", "@babel/preset-react"]
+                        }
+                }
 			},
             {
-				test: /\.json$/,
-				exclude: /(node_modules)/,
-				loader: "json-loader"
-			},
-			{
-				test: /\.css$/,
-				loader: 'style-loader!css-loader!autoprefixer-loader'
-			},
-			{
-				test: /\.scss$/,
-				loader: 'style-loader!css-loader!autoprefixer-loader!sass-loader'
-			},
+                 test: /\.scss$/,
+                    use: [
+                    "style-loader", // creates style nodes from JS strings
+                    "css-loader", // translates CSS into CommonJS
+                    "sass-loader" // compiles Sass to CSS, using Node Sass by default
+                ]
+            },
             { 
                 test: /\.png$/, 
                 loader: 'file-loader' 

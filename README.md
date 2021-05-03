@@ -30,3 +30,8 @@ Features included:
 [MediaStream Recording API](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API)
 
 [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+
+## Alternative script for webpack 3.x
+
+"start": "webpack-dev-server",
+"test": "jest"
